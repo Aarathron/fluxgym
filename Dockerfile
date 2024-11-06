@@ -30,27 +30,28 @@ COPY requirements.txt requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Install PyTorch Nightly for CUDA 12.1
-RUN pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-
-# Change ownership to non-root user
-RUN chown -R appuser:appuser /app
-
-# Optional: Retain sd-scripts if required at runtime
-# If sd-scripts is not needed post-installation, uncomment the following lines
-# RUN rm -rf sd-scripts
-# RUN rm requirements.txt
-
-# Switch to non-root user
-USER appuser
+RUN pip3 install torch torchvision torchaudio --pre --index-url https://download.pytorch.org/whl/cu121
 
 # Copy fluxgym application code
 COPY . ./fluxgym
+
+# Ensure the 'outputs' and 'models' directories exist
+RUN mkdir -p /app/fluxgym/outputs /app/fluxgym/models
+
+# Change ownership of application directories to non-root user
+RUN chown -R appuser:appuser /app/fluxgym
+
+# Set permissions to allow appuser to write to 'outputs' and 'models'
+RUN chmod -R 755 /app/fluxgym/outputs /app/fluxgym/models
 
 # Set environment variable for Gradio
 ENV GRADIO_SERVER_NAME="0.0.0.0"
 
 # Expose the application port
 EXPOSE 7860
+
+# Switch to non-root user
+USER appuser
 
 # Set working directory to fluxgym
 WORKDIR /app/fluxgym
