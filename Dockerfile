@@ -20,9 +20,9 @@ RUN groupadd -g "${PGID}" appuser && \
 # Set working directory
 WORKDIR /app
 
-# Clone sd-scripts repository and install dependencies
-RUN git clone -b sd3 https://github.com/kohya-ss/sd-scripts && \
-    cd sd-scripts && \
+# Clone sd-scripts repository into /app/fluxgym/sd-scripts and install dependencies
+RUN git clone -b sd3 https://github.com/kohya-ss/sd-scripts /app/fluxgym/sd-scripts && \
+    cd /app/fluxgym/sd-scripts && \
     pip3 install --no-cache-dir -r requirements.txt
 
 # Install main application dependencies
@@ -41,8 +41,8 @@ RUN mkdir -p /app/fluxgym/outputs /app/fluxgym/models
 # Change ownership of application directories to non-root user
 RUN chown -R appuser:appuser /app/fluxgym
 
-# Set permissions to allow appuser to write to 'outputs' and 'models'
-RUN chmod -R 755 /app/fluxgym/outputs /app/fluxgym/models
+# Set permissions to allow appuser to write to all directories
+RUN chmod -R 755 /app/fluxgym
 
 # Set environment variable for Gradio
 ENV GRADIO_SERVER_NAME="0.0.0.0"
